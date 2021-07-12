@@ -5,7 +5,12 @@ module.exports = {
     fontFamily: {
       'ibm': ['IBM Plex Sans', '-apple-system', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif']
     },
-    extend: {},
+    
+    extend: {
+      spacing: {
+        '100tw': '100%'
+      },
+    },
   },
   variants: {
     extend: {},
