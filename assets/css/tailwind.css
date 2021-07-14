@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.pop {
+  @apply absolute px-8 py-3 bg-white rounded-lg shadow-lg border border-solid border-gray-300 z-50;
+}
+.pop:before,  
+.pop:after {
+  content: '';
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 20px solid #cfd8e3;
+  @apply w-0 h-0 absolute bottom-100tw left-0 right-0 z-10 mx-auto;
+}
+.pop:after {
+  border-bottom-color: #fff;
+  transform: translateY(2px);
+  @apply z-20;
+}
