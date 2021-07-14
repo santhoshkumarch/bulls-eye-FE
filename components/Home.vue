@@ -18,14 +18,24 @@
               :append-to-body="true">
            <div class="pop">
              <div class="text-blue-800 font-semibold text-md leading-5 tracking-tight cursor-pointer" v-on:click="onselect('US')">US</div>
-             <div class="text-blue-800 font-semibold text-md leading-5 tracking-tight cursor-pointer" v-on:click="onselect('IN')">IN</div>
+             <div class="text-blue-800 font-semibold text-md leading-5 tracking-tight cursor-pointer" v-on:click="onselect('IND')">IN</div>
            </div>
            <div slot="reference" class="cursor-pointer ">{{countryCode}}</div>
             </popper>
         
     </div>
     <div v-if="noData" class="flex items-center justify-center text-blue-800 font-semibold text-md leading-5 tracking-tight pt-5" >No Data Found</div>
-    <div class="grid md:grid-cols-4 grid-cols-1 gap-2 text-center pt-5" v-if="tabData">
+    <div class="grid grid-cols-2 gap-4">
+      <div class="">
+      <div v-for="(sectorName, index) in sectorNames" :key="index">
+        <div class="" v-on:click="selectSector(sectorName)">{{sectorName}}</div>
+      </div>
+      </div>
+      <div class="">
+        data
+      </div>
+    </div>
+    <!-- <div class="grid md:grid-cols-4 grid-cols-1 gap-2 text-center pt-5" v-if="tabData">
       <div v-for="(stock, index) in betTabs" :key="index" class=" px-6 py-4 border shadow-md border-solid border-black-100 rounded-lg bg-white font-ibm">
         <div class="mx-auto text-center">
       <div class=" text-blue-800 font-semibold text-md leading-5 tracking-tight">{{stock.ticker}}</div>
@@ -108,13 +118,15 @@
         </div>
       </div>
     </div>
-    </div>
+    </div> -->
   </div>
 </section>
 </template>
 <script>
 import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
+import { getSectors } from "@/api/FetchApis/fetchapis";
+import { getSectorsName } from "@/api/FetchApis/fetchapis";
 
 export default {
 components: {
@@ -128,20 +140,40 @@ components: {
     countryCode: String,
     tabData: false,
     betTabs: [],
-    noData: false
+    noData: false,
+    sectorNames: [],
+    sectorCodes: String
   }),
   methods: {
+    selectSector(sectorCode) {
+      this.sectorCodes = sectorCode;
+      this.fetchSectors();
+    },
     serialisResponse(params){
       params.forEach((itr) => {
         itr['upsidePotential'] = itr['upsidePotential'].substring(0,2);
       })
       return params
     },
-    async fetchSomething() {
-    const resp = await this.$axios.$get('http://bullseyealerts-env.eba-mtqxphmq.us-east-1.elasticbeanstalk.com/api/stocks/performance')
-    this.stockPerformance = resp.stockPerformance;
-    this.stocks = this.serialisResponse(this.stockPerformance)
-  },
+    async fetchSectors(){
+      let sectorCountry = this.countryCode;
+      let sectorName = this.sectorCodes;
+
+      getSectors(sectorCountry, sectorName).then(response => {
+        console.log("data", response.output)
+      })
+    },
+    async fetchSectorNames(){
+      let countrycode = this.countryCode;
+      getSectorsName(countrycode).then(resp => {
+        this.sectorNames = resp.output.sectors
+      })
+    },
+  //   async fetchSomething() {
+  //   const resp = await this.$axios.$get('http://bullseyealerts-env.eba-mtqxphmq.us-east-1.elasticbeanstalk.com/api/stocks/performance')
+  //   this.stockPerformance = resp.stockPerformance;
+  //   this.stocks = this.serialisResponse(this.stockPerformance)
+  // },
   async fetchBet() {
     const resp = await this.$axios.$get('http://bullseyealerts-env.eba-mtqxphmq.us-east-1.elasticbeanstalk.com/api/stocks/query/bets')
     this.bets = resp;
@@ -149,22 +181,23 @@ components: {
   onselect(params){
     this.countryCode = params
   },
-  async selectTab(tabName) {
+  // async selectTab(tabName) {
     
-    this.tabData = true;
-    this.noData = false;
-      const resp = await this.$axios.$get('http://bullseyealerts-env.eba-mtqxphmq.us-east-1.elasticbeanstalk.com/api/stocks/query?bet='+tabName+'&country='+this.countryCode)
-      this.betTabs = resp.stockPerformance;
-      if(this.betTabs.length == 0){
-        return this.noData = true;
-      }
-      console.log(this.betTabs)
-  }
+  //   this.tabData = true;
+  //   this.noData = false;
+  //     const resp = await this.$axios.$get('http://bullseyealerts-env.eba-mtqxphmq.us-east-1.elasticbeanstalk.com/api/stocks/query?bet='+tabName+'&country='+this.countryCode)
+  //     this.betTabs = resp.stockPerformance;
+  //     if(this.betTabs.length == 0){
+  //       return this.noData = true;
+  //     }
+  //     console.log(this.betTabs)
+  // }
   },
  mounted() {
-   this.fetchSomething();
+  //  this.fetchSomething();
    this.fetchBet();
-   this.countryCode = 'US'
+  this.fetchSectorNames();
+   this.countryCode = 'IND'
  } 
 }
 </script>
